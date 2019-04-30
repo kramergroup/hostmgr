@@ -1,0 +1,3 @@
+HostbasedAuthentication yes
+IgnoreUserKnownHosts yes
+IgnoreRhosts yes

@@ -1,0 +1,18 @@
+FROM golang:1.10
+COPY . /go/src/github.com/kramergroup/hostmgr
+WORKDIR /go/src/github.com/kramergroup/hostmgr
+RUN CGO_ENABLED=1 go build -o hostmgr cmd/hostmgr/main.go
+
+FROM ubuntu:disco
+RUN apt-get update && \
+    apt-get install -y openssh-client && \
+    rm -rf /var/lib/apt/lists/*
+COPY example/ssh_config /etc/ssh/ssh_config
+RUN ssh-keygen -t rsa -N "" -C "server" -f /etc/ssh/ssh_host_rsa_key && \
+    ssh-keygen -t ecdsa -N "" -C "server" -f /etc/ssh/ssh_host_ecdsa_key && \
+    ssh-keygen -t dsa -N "" -C "server" -f /etc/ssh/ssh_host_dsa_key && \
+    ssh-keygen -t ed25519 -N "" -C "server" -f /etc/ssh/ssh_host_ed25519_key
+
+COPY --from=0 /go/src/github.com/kramergroup/hostmgr/hostmgr /bin/hostmgr
+
+ENTRYPOINT ["/bin/hostmgr", "--host=redis://redis:6379", "--filter=/test", "--client"]

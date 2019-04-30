@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  redis:
+    container_name: redis
+    image: redis
+    ports:
+      - "6379:6379"
+  client:
+    build: 
+      context: .
+      dockerfile: example/Dockerfile.client
+    tty: true
+  server:
+    build: 
+      context: .
+      dockerfile: example/Dockerfile.server
+    tty: true

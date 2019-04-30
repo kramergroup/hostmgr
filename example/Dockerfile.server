@@ -1,0 +1,20 @@
+FROM golang:1.10
+COPY . /go/src/github.com/kramergroup/hostmgr
+WORKDIR /go/src/github.com/kramergroup/hostmgr
+RUN CGO_ENABLED=1 go build -o hostmgr cmd/hostmgr/main.go
+
+FROM ubuntu:disco
+RUN apt-get update && \
+    apt-get install -y supervisor openssh-server ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+COPY example/sshd_config /etc/ssh/sshd_config
+RUN mkdir -p /run/sshd
+
+COPY example/supervisor.conf /etc/supervisord.conf
+
+COPY --from=0 /go/src/github.com/kramergroup/hostmgr/hostmgr /bin/hostmgr
+
+# Add a test user - you should not do this in production !!!
+RUN useradd -m -p test test
+
+ENTRYPOINT ["supervisord", "--nodaemon", "--configuration", "/etc/supervisord.conf"]
