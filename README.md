@@ -132,15 +132,15 @@ In dynamic environments hostnames and IP addresses often change, which makes hos
 The recommended way to deploy *hostmgr* in a container is using the Docker build container feature:
 
 ```Dockerfile
-FROM golang:1.10-alpine
+FROM golang:1.10
 
-RUN git clone https://github.com/kramergroup/hostmgr.git /go/src/hostmgr
-WORKDIR /go/src/hostmgr
+RUN git clone https://github.com/kramergroup/hostmgr.git /go/src/github.com/kramergroup/hostmgr
+WORKDIR /go/src/github.com/kramergroup/hostmgr
 RUN CGO_ENABLED=1 go build -o hostmgr cmd/hostmgr/main.go
 
-FROM alpine:3.7
+FROM ubuntu:disco
 RUN apk add --no-cache ca-certificates
-COPY --from=0 /go/src/hostmgr /bin/hostmgr
+COPY --from=0 /go/src/github.com/kramergroup/hostmgr /bin/hostmgr
 RUN mkdir /etc/ssh
 ENTRYPOINT ["/bin/hostmgr"]
 ```
