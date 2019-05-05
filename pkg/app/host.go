@@ -52,14 +52,14 @@ func Create() HostDefinition {
 	if err != nil {
 		// attempt to create a public key file (will only work for root)
 		cmd := exec.Command(
-			"ssh-keygen", "-t", "rsa",
+			"/usr/bin/ssh-keygen", "-t", "rsa",
 			"-f", privateHostKeyPath,
 			"-N", "",
-			"C", "hostmgr")
+			"-C", "hostmgr")
 
 		errRun := cmd.Run()
 		if errRun != nil {
-			log.Error(fmt.Sprintf("Error creating host keys [%s}", errRun.Error()))
+			log.Error(fmt.Sprintf("Error creating host keys [%s]", errRun.Error()))
 		} else {
 			log.Info(fmt.Sprintf("Creating host keys in %s", privateHostKeyPath))
 			publicKey, err = ioutil.ReadFile(publicHostKeyPath)
